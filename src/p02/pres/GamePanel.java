@@ -12,6 +12,8 @@ public class GamePanel extends JPanel {
     private int currentBackgroundIndex;
     private boolean gameStarted;
     private final Board board;
+    private final Image carImage;
+    private final Image[] obstacleImages;
     private final int[][] carPositions = {{100, 285}, {212, 285}, {385, 285}};  // Pozycje dla samochodu
     private final int[][][] obstaclePositions = {  // Pozycje dla przeszkód
             {  // Duże przeszkody
@@ -40,6 +42,12 @@ public class GamePanel extends JPanel {
                 loadImage("../pres/assets/tracks/track2.jpg"),
                 loadImage("../pres/assets/tracks/track3.jpg"),
                 loadImage("../pres/assets/tracks/track4.jpg"),
+        };
+        carImage = loadImage("../pres/assets/car.png");
+        obstacleImages = new Image[] {
+                loadImage("../pres/assets/obstacle1.png"),
+                loadImage("../pres/assets/obstacle2.png"),
+                loadImage("../pres/assets/obstacle3.png"),
         };
         currentBackgroundIndex = 0;
         gameStarted = false;
@@ -78,11 +86,11 @@ public class GamePanel extends JPanel {
                 int obstacleSize = gameBoard[i] - 1;
                 int obstacleY = obstaclePositions[obstacleSize][i][1];
                 int obstacleX = obstaclePositions[obstacleSize][i][0];
-                g.drawImage(board.getObstacleImage(obstacleSize), obstacleX, obstacleY, null);
+                g.drawImage(obstacleImages[obstacleSize], obstacleX, obstacleY, null);
             }
         }
         int carPosition = board.getCarPosition();
-        g.drawImage(board.getCarImage(), carPositions[carPosition][0], carPositions[carPosition][1], null);
+        g.drawImage(carImage, carPositions[carPosition][0], carPositions[carPosition][1], null);
 
         // Rysowanie licznika SevenSegmentDigit w lewym górnym rogu
         int score = board.getScore();
