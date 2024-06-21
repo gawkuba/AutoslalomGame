@@ -14,7 +14,7 @@ public class GameFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(660, 400);  // Zmieniamy rozmiar okna na 660x400
         add(gamePanel);  // Dodajemy GamePanel do JFrame
-
+        setResizable(false);  // Wyłączamy możliwość zmiany rozmiaru okna
         setVisible(true);
 
         // Inicjalizujemy i uruchamiamy wątki

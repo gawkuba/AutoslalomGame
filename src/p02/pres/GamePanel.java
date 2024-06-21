@@ -44,11 +44,11 @@ public class GamePanel extends JPanel {
                 loadImage("../pres/assets/tracks/track3.jpg"),
                 loadImage("../pres/assets/tracks/track4.jpg"),
         };
-        carImage = loadImage("../pres/assets/car.png");
+        carImage = loadImage("../pres/assets/car/car.png");
         obstacleImages = new Image[] {
-                loadImage("../pres/assets/obstacle1.png"),
-                loadImage("../pres/assets/obstacle2.png"),
-                loadImage("../pres/assets/obstacle3.png"),
+                loadImage("../pres/assets/obstacles/obstacleLarge.jpg"),
+                loadImage("../pres/assets/obstacles/obstacleMedium.jpg"),
+                loadImage("../pres/assets/obstacles/obstacleSmall.jpg"),
         };
         currentBackgroundIndex = 0;
         gameStarted = false;
@@ -85,10 +85,10 @@ public class GamePanel extends JPanel {
         int[] gameBoard = board.getBoard();
         for (int i = 0; i < gameBoard.length; i++) {
             if (gameBoard[i] != 0) {
-                int obstacleSize = gameBoard[i] - 1;
-                int obstacleY = obstaclePositions[obstacleSize][i][1];
-                int obstacleX = obstaclePositions[obstacleSize][i][0];
-                g.drawImage(obstacleImages[obstacleSize], obstacleX, obstacleY, null);
+                int obstacleSize = (gameBoard[i] - 1) % obstaclePositions.length;
+                int obstacleY = obstaclePositions[obstacleSize][i % obstaclePositions[0].length][1];
+                int obstacleX = obstaclePositions[obstacleSize][i % obstaclePositions[0].length][0];
+                g.drawImage(obstacleImages[obstacleSize % obstacleImages.length], obstacleX, obstacleY, null);
             }
         }
         int carPosition = board.getCarPosition();
