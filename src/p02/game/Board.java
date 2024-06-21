@@ -18,7 +18,7 @@ public class Board implements KeyListener {
     private int score;
     private boolean gameStarted;
     private int tickCountSinceLastObstacle;
-    private int currentTick;  // Add this line
+    private int currentTick;
 
     public Board() {
         this.board = new int[BOARD_SIZE];
@@ -31,7 +31,7 @@ public class Board implements KeyListener {
         this.eventDispatcher.addListener(sevenSegmentDigit);
         startGame();
         this.tickCountSinceLastObstacle = 0;
-        this.currentTick = 0;  // Initialize currentTick
+        this.currentTick = 0;
     }
 
     private void startGame() {
@@ -56,10 +56,6 @@ public class Board implements KeyListener {
             newObstacle = generateObstacle();
             tickCountSinceLastObstacle = 0;
         }
-        // Check if the new obstacle violates the rules
-        if ((board[2] != 0 && board[3] != 0) || (board[1] == newObstacle)) {
-            newObstacle = 0;  // If it does, make the new obstacle a free space
-        }
         board[1] = newObstacle;
         // Check for collisions
         if ((board[CAR_POSITION] & board[1]) != 0) {
@@ -69,18 +65,7 @@ public class Board implements KeyListener {
     }
 
     private int generateObstacle() {
-        int obstacle = rand.nextInt(3); // Generate a random obstacle
-
-        // Check if the obstacle violates the first rule
-        if (board[2] == obstacle && board[3] == obstacle) {
-            obstacle = (obstacle + 1) % 3;  // If it does, make the new obstacle at a different position
-        }
-
-        // Check if the obstacle violates the second rule
-        if (board[1] == obstacle) {
-            obstacle = (obstacle + 1) % 3;  // If it does, make the new obstacle at a different position
-        }
-
+        int obstacle = rand.nextInt(8); // Generate a random obstacle
         return obstacle;
     }
 
@@ -93,19 +78,19 @@ public class Board implements KeyListener {
         int key = e.getKeyCode();
         if (key == KeyEvent.VK_A) {
             // Move car left
-            if (board[CAR_POSITION] > 0) {
-                board[CAR_POSITION]--;
+            if (board[CAR_POSITION] > 1) {
+                board[CAR_POSITION] >>= 1;
             }
         } else if (key == KeyEvent.VK_D) {
             // Move car right
-            if (board[CAR_POSITION] < BOARD_SIZE - 1) {
-                board[CAR_POSITION]++;
+            if (board[CAR_POSITION] < 4) {
+                board[CAR_POSITION] <<= 1;
             }
         } else if (key == KeyEvent.VK_S) {
             // Start the game
             if (!gameStarted) {
-                startGame();
                 gameStarted = true;
+                board[CAR_POSITION] = 2; // Start with car in the middle
             }
         }
     }
@@ -132,5 +117,4 @@ public class Board implements KeyListener {
     public int getScore() {
         return score;
     }
-
 }

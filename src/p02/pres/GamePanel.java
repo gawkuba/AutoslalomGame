@@ -11,6 +11,7 @@ public class GamePanel extends JPanel {
     private final Image[] backgroundImages;
     private int currentBackgroundIndex;
     private boolean gameStarted;
+    private int backgroundCounter = 0;
     private final Board board;
     private final Image carImage;
     private final Image[] obstacleImages;
@@ -57,7 +58,7 @@ public class GamePanel extends JPanel {
 
     private void updateGame() {
         if (gameStarted) {
-            currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundImages.length;
+            updateBackground();
         }
         repaint();
     }
@@ -67,6 +68,7 @@ public class GamePanel extends JPanel {
         if (resource != null) {
             return new ImageIcon(resource).getImage();
         } else {
+            System.err.println("Failed to load image: " + path);
             return null;
         }
     }
@@ -98,5 +100,10 @@ public class GamePanel extends JPanel {
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 30));
         g.drawString(scoreString, 10, 30);  // Rysujemy wynik w lewym górnym rogu
+    }
+    public void updateBackground() {
+        // Logic to update the background image
+        currentBackgroundIndex = backgroundCounter % backgroundImages.length;
+        backgroundCounter++;
     }
 }

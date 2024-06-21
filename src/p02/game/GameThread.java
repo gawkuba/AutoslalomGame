@@ -2,20 +2,22 @@
 package p02.game;
 
 public class GameThread extends Thread {
-    private static GameThread instance;
     private final Board board;
-    private int interval;
+    private final EventDispatcher eventDispatcher;
     private boolean running;
+    private static GameThread instance;
+    private final int someIntValue;
 
-    private GameThread(Board board, EventDispatcher eventDispatcher, int interval) {
+    public GameThread(Board board, EventDispatcher eventDispatcher, int someIntValue) {
         this.board = board;
-        this.interval = interval;
+        this.eventDispatcher = eventDispatcher;
         this.running = true;
+        this.someIntValue = someIntValue;
     }
 
-    public static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int interval) {
+    public static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int someIntValue) {
         if (instance == null) {
-            instance = new GameThread(board, eventDispatcher, interval);
+            instance = new GameThread(board, eventDispatcher, someIntValue);
         }
         return instance;
     }
@@ -24,11 +26,8 @@ public class GameThread extends Thread {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(interval);
+                Thread.sleep(1000);  // Aktualizuj co sekundę
                 board.tick();
-                interval = Math.max(100, interval - 10);  // zwiększa stopniowo prędkość gry
-
-                // sprawdza czy wynik jest 999 lub czy doszło do kolizji
                 if (board.getScore() >= 999 || board.hasCollisionOccurred()) {
                     stopGame();
                 }
@@ -39,6 +38,6 @@ public class GameThread extends Thread {
     }
 
     public void stopGame() {
-        running = false;
+        this.running = false;
     }
 }
