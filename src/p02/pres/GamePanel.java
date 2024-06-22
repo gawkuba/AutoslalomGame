@@ -8,6 +8,7 @@ import java.net.URL;
 
 public class GamePanel extends JPanel {
     private final Timer timer;
+    private final Counter counter;
     private final Image[] backgroundImages;
     private int currentBackgroundIndex;
     private boolean gameStarted;
@@ -18,24 +19,25 @@ public class GamePanel extends JPanel {
     private final int[][] carPositions = {{100, 285}, {212, 285}, {385, 285}};  // Pozycje dla samochodu
     private final int[][][] obstaclePositions = {  // Pozycje dla przeszkód
             {  // Duże przeszkody
-                    {235, 252}, {265, 213},  // Pozycja lewa
-                    {330, 252}, {360, 213},  // Pozycja środkowa
-                    {425, 252}, {455, 213}   // Pozycja prawa
+                    {205, 252}, {245, 213},  // Pozycja lewa
+                    {300, 252}, {340, 213},  // Pozycja środkowa
+                    {405, 252}, {435, 213}   // Pozycja prawa
             },
             {  // Średnie przeszkody
-                    {355, 143}, {415, 103},  // Pozycja lewa
-                    {425, 143}, {470, 103},  // Pozycja środkowa
-                    {495, 143}, {525, 103}   // Pozycja prawa
+                    {335, 143}, {395, 103},  // Pozycja lewa
+                    {415, 143}, {450, 103},  // Pozycja środkowa
+                    {485, 143}, {505, 103}   // Pozycja prawa
             },
             {  // Małe przeszkody
-                    {497, 45}, {531, 15},  // Pozycja lewa
-                    {530, 45}, {563, 15},  // Pozycja środkowa
-                    {563, 45}, {595, 15}   // Pozycja prawa
+                    {487, 45}, {521, 15},  // Pozycja lewa
+                    {525, 45}, {548, 15},  // Pozycja środkowa
+                    {553, 45}, {575, 15}   // Pozycja prawa
             }
     };
 
     public GamePanel(Board board) {
         this.board = board;
+        this.counter = new Counter();
         this.timer = new Timer(1000, _ -> updateGame());
 
         backgroundImages = new Image[] {
@@ -46,9 +48,9 @@ public class GamePanel extends JPanel {
         };
         carImage = loadImage("../pres/assets/car/car.png");
         obstacleImages = new Image[] {
-                loadImage("../pres/assets/obstacles/obstacleLarge.jpg"),
-                loadImage("../pres/assets/obstacles/obstacleMedium.jpg"),
-                loadImage("../pres/assets/obstacles/obstacleSmall.jpg"),
+                loadImage("../pres/assets/obstacles/obstacleLarge.png"),
+                loadImage("../pres/assets/obstacles/obstacleMedium.png"),
+                loadImage("../pres/assets/obstacles/obstacleSmall.png"),
         };
         currentBackgroundIndex = 0;
         gameStarted = false;
@@ -95,11 +97,8 @@ public class GamePanel extends JPanel {
         g.drawImage(carImage, carPositions[carPosition][0], carPositions[carPosition][1], null);
 
         // Rysowanie licznika SevenSegmentDigit w lewym górnym rogu
-        int score = board.getScore();
-        String scoreString = String.format("%03d", score);  // Formatujemy wynik na 3 cyfry
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 30));
-        g.drawString(scoreString, 10, 30);  // Rysujemy wynik w lewym górnym rogu
+        // Rysujemy licznik
+        counter.draw(g);
     }
     public void updateBackground() {
         // Logic to update the background image
