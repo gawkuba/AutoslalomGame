@@ -12,15 +12,14 @@ public class GameFrame extends JFrame {
 
         setTitle("Autoslalom Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(660, 400);  // Zmieniamy rozmiar okna na 660x400
-        add(gamePanel);  // Dodajemy GamePanel do JFrame
-        setResizable(false);  // Wyłączamy możliwość zmiany rozmiaru okna
+        setSize(660, 400);
+        add(gamePanel);
+        setResizable(false);
         setVisible(true);
 
-        // Inicjalizujemy i uruchamiamy wątki
         GameThread gameThread = new GameThread(board, EventDispatcher.getInstance(), 1000);
         BackgroundThread backgroundThread = new BackgroundThread(gamePanel, board);
-        CounterThread counterThread = new CounterThread(new Counter(), board);
+        CounterThread counterThread = new CounterThread(gamePanel.getCounter(), board);
 
         gameThread.start();
         backgroundThread.start();

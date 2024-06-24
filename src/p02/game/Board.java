@@ -1,5 +1,7 @@
 package p02.game;
 
+import p02.pres.Counter;
+import p02.pres.GamePanel;
 import p02.pres.SevenSegmentDigit;
 
 import java.awt.event.KeyEvent;
@@ -14,6 +16,8 @@ public class Board implements KeyListener {
     private final Random rand;
     private final EventDispatcher eventDispatcher;
     private GameThread gameThread;
+    private BackgroundThread backgroundThread;
+    private CounterThread counterThread;
     private boolean collisionOccurred;
     private int score;
     private boolean gameStarted;
@@ -29,24 +33,28 @@ public class Board implements KeyListener {
         this.eventDispatcher = new EventDispatcher();
         SevenSegmentDigit sevenSegmentDigit = new SevenSegmentDigit();
         this.eventDispatcher.addListener(sevenSegmentDigit);
-        startGame();
         this.tickCountSinceLastObstacle = 0;
         this.currentTick = 0;
     }
 
     private void startGame() {
-        if (gameThread == null) {
+        if (!gameStarted) {
+            gameStarted = true;
+            board[CAR_POSITION] = 2;
             gameThread = GameThread.getInstance(this, eventDispatcher, 1000);
+            backgroundThread = new BackgroundThread(new GamePanel(this), this);
+            counterThread = new CounterThread(new Counter(), this);
+
             gameThread.start();
+            backgroundThread.start();
+            counterThread.start();
         }
     }
 
     private void updateBoard() {
-        // Move obstacles down the board
         int[] tempBoard = new int[BOARD_SIZE];
         System.arraycopy(board, 1, tempBoard, 2, BOARD_SIZE - 2);
         board = tempBoard;
-        // Generate new obstacle
         int newObstacle = 0;
         tickCountSinceLastObstacle++;
         int scoreDigit = score % 10;
@@ -57,15 +65,15 @@ public class Board implements KeyListener {
             tickCountSinceLastObstacle = 0;
         }
         board[1] = newObstacle;
-        // Check for collisions
         if ((board[CAR_POSITION] & board[1]) != 0) {
             collisionOccurred = true;
             eventDispatcher.dispatchEvent(new ResetEvent());
+            gameThread.stopGame();
         }
     }
 
     private int generateObstacle() {
-        int obstacle = rand.nextInt(8); // Generate a random obstacle
+        int obstacle = rand.nextInt(8);
         return obstacle;
     }
 
@@ -77,21 +85,15 @@ public class Board implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         if (key == KeyEvent.VK_A) {
-            // Move car left
             if (board[CAR_POSITION] > 1) {
                 board[CAR_POSITION] >>= 1;
             }
         } else if (key == KeyEvent.VK_D) {
-            // Move car right
             if (board[CAR_POSITION] < 4) {
                 board[CAR_POSITION] <<= 1;
             }
         } else if (key == KeyEvent.VK_S) {
-            // Start the game
-            if (!gameStarted) {
-                gameStarted = true;
-                board[CAR_POSITION] = 2; // Start with car in the middle
-            }
+            startGame();
         }
     }
 
@@ -104,6 +106,10 @@ public class Board implements KeyListener {
     public void tick() {
         currentTick++;
         updateBoard();
+        if (!collisionOccurred) {
+            score++;
+            eventDispatcher.dispatchEvent(new PlusOneEvent(score));
+        }
     }
 
     public int[] getBoard() {

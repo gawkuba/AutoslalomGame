@@ -16,29 +16,20 @@ public class GamePanel extends JPanel {
     private final Board board;
     private final Image carImage;
     private final Image[] obstacleImages;
-    private final int[][] carPositions = {{100, 285}, {212, 285}, {385, 285}};  // Pozycje dla samochodu
-    private final int[][][] obstaclePositions = {  // Pozycje dla przeszkód
-            {  // Duże przeszkody
-                    {205, 252}, {245, 213},  // Pozycja lewa
-                    {300, 252}, {340, 213},  // Pozycja środkowa
-                    {405, 252}, {435, 213}   // Pozycja prawa
-            },
-            {  // Średnie przeszkody
-                    {335, 143}, {395, 103},  // Pozycja lewa
-                    {415, 143}, {450, 103},  // Pozycja środkowa
-                    {485, 143}, {505, 103}   // Pozycja prawa
-            },
-            {  // Małe przeszkody
-                    {487, 45}, {521, 15},  // Pozycja lewa
-                    {525, 45}, {548, 15},  // Pozycja środkowa
-                    {553, 45}, {575, 15}   // Pozycja prawa
-            }
+
+    private final int[][] carPositions = {{100, 285}, {212, 285}, {385, 285}};
+    private final int[][][] obstaclePositions = {
+            {{205, 252}, {245, 213}},
+            {{300, 252}, {340, 213}},
+            {{405, 252}, {435, 213}}
     };
 
     public GamePanel(Board board) {
         this.board = board;
         this.counter = new Counter();
         this.timer = new Timer(1000, _ -> updateGame());
+        this.counter.setBounds(10, 10, 100, 50);  // Set the position and size of the counter
+        this.add(counter);  // Add the counter to the GamePanel
 
         backgroundImages = new Image[] {
                 loadImage("../pres/assets/tracks/track1.jpg"),
@@ -96,12 +87,15 @@ public class GamePanel extends JPanel {
         int carPosition = board.getCarPosition();
         g.drawImage(carImage, carPositions[carPosition][0], carPositions[carPosition][1], null);
 
-        // Rysowanie licznika SevenSegmentDigit w lewym górnym rogu
-        // Rysujemy licznik
+        counter.setBounds(10, 10, 100, 50);
         counter.draw(g);
     }
+
+    public Counter getCounter() {
+        return counter;
+    }
+
     public void updateBackground() {
-        // Logic to update the background image
         currentBackgroundIndex = backgroundCounter % backgroundImages.length;
         backgroundCounter++;
     }

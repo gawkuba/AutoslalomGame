@@ -1,8 +1,14 @@
 package p02.pres;
 
+import p02.game.GameEvent;
+import p02.game.GameEventListener;
+import p02.game.PlusOneEvent;
+import p02.game.ResetEvent;
+
+import javax.swing.*;
 import java.awt.*;
 
-public class Counter extends SevenSegmentDigit {
+public class Counter extends JPanel implements GameEventListener {
     private SevenSegmentDigit hundreds;
     private SevenSegmentDigit tens;
     private SevenSegmentDigit ones;
@@ -33,5 +39,15 @@ public class Counter extends SevenSegmentDigit {
         hundreds.draw(g);
         tens.draw(g);
         ones.draw(g);
+    }
+    @Override
+    public void handleEvent(GameEvent e) {
+        if (e instanceof PlusOneEvent) {
+            ones.handleEvent(e);
+        } else if (e instanceof ResetEvent) {
+            hundreds.handleEvent(e);
+            tens.handleEvent(e);
+            ones.handleEvent(e);
+        }
     }
 }
