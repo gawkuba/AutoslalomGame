@@ -15,7 +15,7 @@ public class GameThread extends Thread {
         this.someIntValue = someIntValue;
     }
 
-    public static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int someIntValue) {
+    public synchronized static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int someIntValue) {
         if (instance == null) {
             instance = new GameThread(board, eventDispatcher, someIntValue);
         }
@@ -23,7 +23,7 @@ public class GameThread extends Thread {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         while (running) {
             try {
                 Thread.sleep(1000);  // Aktualizuj co sekundę

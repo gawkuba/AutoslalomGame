@@ -8,11 +8,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 // TODO 1: Obstacles does not show
 // TODO 2: Everything is moving before clicking s
 // TODO 3: The car is mobing correctly but the posiibility of moving should be disabled when the game is over
 // TODO 4: The counter is not working properly
+// TODO 5: The game is not synchronized with graphics and counter
 
 public class Board implements KeyListener {
     public static final int BOARD_SIZE = 7;
@@ -29,6 +32,7 @@ public class Board implements KeyListener {
     private boolean gameStarted;
     private int tickCountSinceLastObstacle;
     private int currentTick;
+    private final Lock lock = new ReentrantLock();
 
     public Board() {
         this.board = new int[BOARD_SIZE];
@@ -43,12 +47,12 @@ public class Board implements KeyListener {
         this.currentTick = 0;
     }
 
-    private void startGame() {
+    private synchronized void startGame() {
         if (!gameStarted) {
             gameStarted = true;
             board[CAR_POSITION] = 2;
             gameThread = GameThread.getInstance(this, eventDispatcher, 1000);
-            backgroundThread = new BackgroundThread(new GamePanel(this), this);
+            backgroundThread = new BackgroundThread(new GamePanel(this, lock), this);
             counterThread = new CounterThread(new Counter(), this);
 
             gameThread.start();
@@ -57,47 +61,56 @@ public class Board implements KeyListener {
         }
     }
 
-    private void updateBoard() {
-        // Store the car position
-        int carPosition = board[CAR_POSITION];
+    private synchronized void updateBoard() {
+        lock.lock();
+        try {
+            // Store the car position
+            int carPosition = board[CAR_POSITION];
 
-        // Shift the obstacles towards the car
-        for (int i = 1; i < BOARD_SIZE; i++) {
-            board[i - 1] = board[i];
+            // Shift the obstacles towards the car
+            for (int i = 1; i < BOARD_SIZE; i++) {
+                board[i - 1] = board[i];
+            }
+
+            // Restore the car position
+            board[CAR_POSITION] = carPosition;
+
+            // Determine the frequency of obstacle generation based on the score
+            int score = getScore();
+            int frequency;
+            if (score < 10) {
+                frequency = 4;
+            }
+            else if (score < 100) {
+                frequency = 3;
+            }
+            else {
+                frequency = 2;
+            }
+
+            // Generate a new obstacle at index 6
+            tickCountSinceLastObstacle++;
+            if (tickCountSinceLastObstacle % frequency == 0) {
+                board[6] = generateObstacle();
+                tickCountSinceLastObstacle = 0;
+            }
+            else {
+                board[6] = 0;
+            }
+
+            // Check for a collision
+            if ((board[CAR_POSITION] & board[1]) != 0) {
+                collisionOccurred = true;
+                eventDispatcher.dispatchEvent(new ResetEvent());
+                gameThread.stopGame();
+            }
         }
-
-        // Restore the car position
-        board[CAR_POSITION] = carPosition;
-
-        // Determine the frequency of obstacle generation based on the score
-        int score = getScore();
-        int frequency;
-        if (score < 10) {
-            frequency = 4;
-        } else if (score < 100) {
-            frequency = 3;
-        } else {
-            frequency = 2;
-        }
-
-        // Generate a new obstacle at index 6
-        tickCountSinceLastObstacle++;
-        if (tickCountSinceLastObstacle % frequency == 0) {
-            board[6] = generateObstacle();
-            tickCountSinceLastObstacle = 0;
-        } else {
-            board[6] = 0;
-        }
-
-        // Check for a collision
-        if ((board[CAR_POSITION] & board[1]) != 0) {
-            collisionOccurred = true;
-            eventDispatcher.dispatchEvent(new ResetEvent());
-            gameThread.stopGame();
+        finally {
+            lock.unlock();
         }
     }
 
-    private int generateObstacle() {
+    private synchronized int generateObstacle() {
         int[] lanes = {1, 2, 4};
         int newObstacle;
         do {
@@ -137,15 +150,22 @@ public class Board implements KeyListener {
     @Override
     public void keyTyped(KeyEvent e) {}
 
-    public void tick() {
-        currentTick++;
-        updateBoard();
-        System.out.println(Arrays.toString(board));
-        if (!collisionOccurred) {
-            score++;
-            eventDispatcher.dispatchEvent(new PlusOneEvent(score));
+    public synchronized void tick() {
+        lock.lock();
+        try {
+            currentTick++;
+            updateBoard();
+            System.out.println(Arrays.toString(board));
+            if (!collisionOccurred) {
+                score++;
+                eventDispatcher.dispatchEvent(new PlusOneEvent(score));
+            }
+        }
+        finally {
+            lock.unlock();
         }
     }
+
 
     public int[] getBoard() {
         return board;
@@ -157,5 +177,9 @@ public class Board implements KeyListener {
 
     public int getScore() {
         return score;
+    }
+
+    public Lock getLock() {
+        return lock;
     }
 }

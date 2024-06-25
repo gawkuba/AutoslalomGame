@@ -8,7 +8,8 @@ public class GameFrame extends JFrame {
 
     public GameFrame() {
         Board board = new Board();
-        GamePanel gamePanel = new GamePanel(board);
+
+        GamePanel gamePanel = new GamePanel(board, board.getLock());
 
         setTitle("Autoslalom Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -17,6 +18,7 @@ public class GameFrame extends JFrame {
         gamePanel.addKeyListener(board);
         gamePanel.setFocusable(true);
         setResizable(false);
+        setLocationRelativeTo(null);
         setVisible(true);
 
         GameThread gameThread = new GameThread(board, EventDispatcher.getInstance(), 1000);
