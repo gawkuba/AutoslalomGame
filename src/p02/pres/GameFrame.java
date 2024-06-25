@@ -14,6 +14,8 @@ public class GameFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(660, 400);
         add(gamePanel);
+        gamePanel.addKeyListener(board);
+        gamePanel.setFocusable(true);
         setResizable(false);
         setVisible(true);
 

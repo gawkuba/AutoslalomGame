@@ -6,10 +6,16 @@ import p02.pres.SevenSegmentDigit;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.util.Random;
 
+// TODO 1: Obstacles does not show
+// TODO 2: Everything is moving before clicking s
+// TODO 3: The car is mobing correctly but the posiibility of moving should be disabled when the game is over
+// TODO 4: The counter is not working properly
+
 public class Board implements KeyListener {
-    private static final int BOARD_SIZE = 7;
+    public static final int BOARD_SIZE = 7;
     private static final int CAR_POSITION = 0;
 
     private int[] board;
@@ -52,19 +58,38 @@ public class Board implements KeyListener {
     }
 
     private void updateBoard() {
-        int[] tempBoard = new int[BOARD_SIZE];
-        System.arraycopy(board, 1, tempBoard, 2, BOARD_SIZE - 2);
-        board = tempBoard;
-        int newObstacle = 0;
-        tickCountSinceLastObstacle++;
-        int scoreDigit = score % 10;
-        if ((scoreDigit == 0 && tickCountSinceLastObstacle % 4 == 0) ||
-                (scoreDigit > 0 && scoreDigit < 10 && tickCountSinceLastObstacle % 3 == 0) ||
-                (scoreDigit == 10 && tickCountSinceLastObstacle % 2 == 0)) {
-            newObstacle = generateObstacle();
-            tickCountSinceLastObstacle = 0;
+        // Store the car position
+        int carPosition = board[CAR_POSITION];
+
+        // Shift the obstacles towards the car
+        for (int i = 1; i < BOARD_SIZE; i++) {
+            board[i - 1] = board[i];
         }
-        board[1] = newObstacle;
+
+        // Restore the car position
+        board[CAR_POSITION] = carPosition;
+
+        // Determine the frequency of obstacle generation based on the score
+        int score = getScore();
+        int frequency;
+        if (score < 10) {
+            frequency = 4;
+        } else if (score < 100) {
+            frequency = 3;
+        } else {
+            frequency = 2;
+        }
+
+        // Generate a new obstacle at index 6
+        tickCountSinceLastObstacle++;
+        if (tickCountSinceLastObstacle % frequency == 0) {
+            board[6] = generateObstacle();
+            tickCountSinceLastObstacle = 0;
+        } else {
+            board[6] = 0;
+        }
+
+        // Check for a collision
         if ((board[CAR_POSITION] & board[1]) != 0) {
             collisionOccurred = true;
             eventDispatcher.dispatchEvent(new ResetEvent());
@@ -73,8 +98,12 @@ public class Board implements KeyListener {
     }
 
     private int generateObstacle() {
-        int obstacle = rand.nextInt(8);
-        return obstacle;
+        int[] lanes = {1, 2, 4};
+        int newObstacle;
+        do {
+            newObstacle = lanes[rand.nextInt(lanes.length)];
+        } while (newObstacle == board[6]);
+        return newObstacle;
     }
 
     public int getCarPosition() {
@@ -84,16 +113,21 @@ public class Board implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
-        if (key == KeyEvent.VK_A) {
+        if (key == KeyEvent.VK_D) {
+            // Move the car to the left
             if (board[CAR_POSITION] > 1) {
-                board[CAR_POSITION] >>= 1;
+                board[CAR_POSITION] /= 2;
             }
-        } else if (key == KeyEvent.VK_D) {
+        } else if (key == KeyEvent.VK_A) {
+            // Move the car to the right
             if (board[CAR_POSITION] < 4) {
-                board[CAR_POSITION] <<= 1;
+                board[CAR_POSITION] *= 2;
             }
         } else if (key == KeyEvent.VK_S) {
-            startGame();
+            // Start the game
+            if (!gameStarted) {
+                startGame();
+            }
         }
     }
 
@@ -106,6 +140,7 @@ public class Board implements KeyListener {
     public void tick() {
         currentTick++;
         updateBoard();
+        System.out.println(Arrays.toString(board));
         if (!collisionOccurred) {
             score++;
             eventDispatcher.dispatchEvent(new PlusOneEvent(score));
