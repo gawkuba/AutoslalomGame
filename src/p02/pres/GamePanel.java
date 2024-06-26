@@ -11,29 +11,33 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
+
+// TODO: change slightly hashmap positions for obstacles
 
 public class GamePanel extends JPanel {
     private static final int BOARD_SIZE = 7;
     private final Timer timer;
     private final Counter counter;
     private final Image[] backgroundImages;
-    private int currentBackgroundIndex;
+    private AtomicInteger currentBackgroundIndex;
     private boolean gameStarted;
-    private int backgroundCounter = 0;
     private final Board board;
     private final Image carImage;
     private final Image[] obstacleImages;
     private final Map<CompositeKey, int[]> obstaclePositions;
     private final Lock lock;
     private final Map<Integer, int[]> carPositions;
+    private Timer repaintTimer;
+
 
     public GamePanel(Board board, Lock lock) {
         this.board = board;
         this.counter = new Counter();
         this.gameStarted = false;
-        this.obstaclePositions = new HashMap<>();
         this.lock = lock;
+        currentBackgroundIndex = new AtomicInteger(0);
 
         // Initialize the background images
         this.backgroundImages = new Image[]{
@@ -53,34 +57,32 @@ public class GamePanel extends JPanel {
                 loadImage("../pres/assets/obstacles/obstacleSmall.png"),
         };
 
-        Map<Integer, Map<Integer, int[]>> obstaclePositions = new HashMap<>();
+        // Initialize the obstacle positions
+        this.obstaclePositions = new HashMap<>();
 
-// Add positions for value 4 (left lane)
-        obstaclePositions.putIfAbsent(4, new HashMap<>());
-        obstaclePositions.get(4).put(6, new int[]{531, 15});
-        obstaclePositions.get(4).put(5, new int[]{497, 45});
-        obstaclePositions.get(4).put(4, new int[]{415, 103});
-        obstaclePositions.get(4).put(3, new int[]{355, 143});
-        obstaclePositions.get(4).put(2, new int[]{265, 213});
-        obstaclePositions.get(4).put(1, new int[]{235, 252});
+        // Add positions for value 4 (left lane)
+        this.obstaclePositions.put(new CompositeKey(4, 6), new int[]{531, 15});
+        this.obstaclePositions.put(new CompositeKey(4, 5), new int[]{497, 45});
+        this.obstaclePositions.put(new CompositeKey(4, 4), new int[]{415, 103});
+        this.obstaclePositions.put(new CompositeKey(4, 3), new int[]{355, 143});
+        this.obstaclePositions.put(new CompositeKey(4, 2), new int[]{265, 213});
+        this.obstaclePositions.put(new CompositeKey(4, 1), new int[]{235, 252});
 
-// Add positions for value 2 (middle lane)
-        obstaclePositions.putIfAbsent(2, new HashMap<>());
-        obstaclePositions.get(2).put(6, new int[]{563, 15});
-        obstaclePositions.get(2).put(5, new int[]{530, 45});
-        obstaclePositions.get(2).put(4, new int[]{470, 103});
-        obstaclePositions.get(2).put(3, new int[]{425, 143});
-        obstaclePositions.get(2).put(2, new int[]{360, 213});
-        obstaclePositions.get(2).put(1, new int[]{330, 252});
+        // Add positions for value 2 (middle lane)
+        this.obstaclePositions.put(new CompositeKey(2, 6), new int[]{553, 15});
+        this.obstaclePositions.put(new CompositeKey(2, 5), new int[]{530, 45});
+        this.obstaclePositions.put(new CompositeKey(2, 4), new int[]{470, 103});
+        this.obstaclePositions.put(new CompositeKey(2, 3), new int[]{425, 143});
+        this.obstaclePositions.put(new CompositeKey(2, 2), new int[]{360, 213});
+        this.obstaclePositions.put(new CompositeKey(2, 1), new int[]{330, 252});
 
-// Add positions for value 1 (right lane)
-        obstaclePositions.putIfAbsent(1, new HashMap<>());
-        obstaclePositions.get(1).put(6, new int[]{595, 15});
-        obstaclePositions.get(1).put(5, new int[]{563, 45});
-        obstaclePositions.get(1).put(4, new int[]{525, 103});
-        obstaclePositions.get(1).put(3, new int[]{495, 143});
-        obstaclePositions.get(1).put(2, new int[]{455, 213});
-        obstaclePositions.get(1).put(1, new int[]{425, 252});
+        // Add positions for value 1 (right lane)
+        this.obstaclePositions.put(new CompositeKey(1, 6), new int[]{565, 15});
+        this.obstaclePositions.put(new CompositeKey(1, 5), new int[]{533, 45});
+        this.obstaclePositions.put(new CompositeKey(1, 4), new int[]{505, 103});
+        this.obstaclePositions.put(new CompositeKey(1, 3), new int[]{485, 143});
+        this.obstaclePositions.put(new CompositeKey(1, 2), new int[]{455, 213});
+        this.obstaclePositions.put(new CompositeKey(1, 1), new int[]{425, 252});
 
         // Initialize the car positions
         this.carPositions = new HashMap<>();
@@ -90,17 +92,26 @@ public class GamePanel extends JPanel {
 
         timer = new Timer(1000, _ -> updateGame());
         timer.start();
+        repaintTimer = new Timer(1000, _ -> repaint());
+        repaintTimer.start();
     }
 
     private Image loadImage(String imagePath) {
         URL imageUrl = getClass().getResource(imagePath);
         try {
             assert imageUrl != null;
-            return ImageIO.read(imageUrl);
+            Image image = ImageIO.read(imageUrl);
+            System.out.println("Loaded image: " + imagePath);
+            return image;
         } catch (IOException e) {
             e.printStackTrace();
             return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         }
+    }
+
+    public void startBackground() {
+        System.out.println("Starting background...");
+        timer.start();
     }
 
     private void updateGame() {
@@ -112,8 +123,16 @@ public class GamePanel extends JPanel {
         repaint();
     }
 
-    public synchronized void updateBackground() {
-        currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundImages.length;
+    public void updateBackground() {
+        lock.lock();
+        try {
+            System.out.println("Updating background at " + System.currentTimeMillis());
+            currentBackgroundIndex.set((currentBackgroundIndex.get() + 1) % backgroundImages.length);
+            System.out.println("background index in updateBackground " + currentBackgroundIndex.get());
+        } finally {
+            lock.unlock();
+        }
+        SwingUtilities.invokeLater(this::repaint);
     }
 
     private void updateCarPosition() {
@@ -131,8 +150,9 @@ public class GamePanel extends JPanel {
         lock.lock();
         try {
             super.paintComponent(g);
-            g.drawImage(backgroundImages[currentBackgroundIndex], 0, 0, getWidth(), getHeight(), this);
-
+            System.out.println("Drawing background image " + currentBackgroundIndex.get() + "...");
+            g.drawImage(backgroundImages[currentBackgroundIndex.get()], 0, 0, getWidth(), getHeight(), this);
+            System.out.println("background index in paint component: " + currentBackgroundIndex);
             int carPosition = board.getCarPosition();
             // Draw the car image at the corresponding position
             if (carPositions != null && carPositions.containsKey(carPosition)) {
@@ -143,8 +163,6 @@ public class GamePanel extends JPanel {
             int[] boardArray = board.getBoard();
             for (int i = 1; i < BOARD_SIZE; i++) {
                 CompositeKey key = new CompositeKey(boardArray[i], i);
-                System.out.println("Obstacle positions: " + obstaclePositions);
-                System.out.println("Checking for key: " + key);
                 if (obstaclePositions!= null && obstaclePositions.containsKey(key)) {
                     int[] obstaclePosition = obstaclePositions.get(key);
                     Image obstacleImage;

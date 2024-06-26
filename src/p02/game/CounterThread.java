@@ -14,7 +14,7 @@ public class CounterThread extends Thread {
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         while (running) {
             try {
                 Thread.sleep(1000);  // Aktualizuj co sekundę

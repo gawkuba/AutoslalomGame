@@ -3,12 +3,15 @@ package p02.pres;
 import p02.game.*;
 
 import javax.swing.*;
+import java.util.concurrent.CyclicBarrier;
 
 public class GameFrame extends JFrame {
 
-    public GameFrame() {
-        Board board = new Board();
 
+
+    public GameFrame() {
+        CyclicBarrier barrier = new CyclicBarrier(2);
+        Board board = new Board(barrier);
         GamePanel gamePanel = new GamePanel(board, board.getLock());
 
         setTitle("Autoslalom Game");
@@ -20,14 +23,6 @@ public class GameFrame extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
-
-        GameThread gameThread = new GameThread(board, EventDispatcher.getInstance(), 1000);
-        BackgroundThread backgroundThread = new BackgroundThread(gamePanel, board);
-        CounterThread counterThread = new CounterThread(gamePanel.getCounter(), board);
-
-        gameThread.start();
-        backgroundThread.start();
-        counterThread.start();
     }
 
     public static void main(String[] args) {

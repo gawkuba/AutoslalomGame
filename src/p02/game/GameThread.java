@@ -1,37 +1,43 @@
 // Klasa GameThread
 package p02.game;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 public class GameThread extends Thread {
     private final Board board;
     private final EventDispatcher eventDispatcher;
     private boolean running;
     private static GameThread instance;
     private final int someIntValue;
+    private final CyclicBarrier barrier;
 
-    public GameThread(Board board, EventDispatcher eventDispatcher, int someIntValue) {
+    public GameThread(Board board, EventDispatcher eventDispatcher, int someIntValue, CyclicBarrier barrier) {
         this.board = board;
         this.eventDispatcher = eventDispatcher;
         this.running = true;
         this.someIntValue = someIntValue;
+        this.barrier = barrier;
     }
 
-    public synchronized static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int someIntValue) {
+    public static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int someIntValue, CyclicBarrier barrier) {
         if (instance == null) {
-            instance = new GameThread(board, eventDispatcher, someIntValue);
+            instance = new GameThread(board, eventDispatcher, someIntValue, barrier);
         }
         return instance;
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         while (running) {
             try {
-                Thread.sleep(1000);  // Aktualizuj co sekundę
+                Thread.sleep(1000);  // Update every second
                 board.tick();
                 if (board.getScore() >= 999 || board.hasCollisionOccurred()) {
                     stopGame();
                 }
-            } catch (InterruptedException e) {
+                barrier.await();  // Wait for the other threads to reach this point
+            } catch (InterruptedException | BrokenBarrierException e) {
                 Thread.currentThread().interrupt();
             }
         }

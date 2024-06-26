@@ -8,11 +8,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-// TODO 1: Obstacles does not show
-// TODO 2: Everything is moving before clicking s
 // TODO 3: The car is mobing correctly but the posiibility of moving should be disabled when the game is over
 // TODO 4: The counter is not working properly
 // TODO 5: The game is not synchronized with graphics and counter
@@ -20,7 +19,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Board implements KeyListener {
     public static final int BOARD_SIZE = 7;
     private static final int CAR_POSITION = 0;
-
     private int[] board;
     private final Random rand;
     private final EventDispatcher eventDispatcher;
@@ -33,8 +31,11 @@ public class Board implements KeyListener {
     private int tickCountSinceLastObstacle;
     private int currentTick;
     private final Lock lock = new ReentrantLock();
+    private final CyclicBarrier barrier;
+    private GamePanel gamePanel;
 
-    public Board() {
+    public Board(CyclicBarrier barrier) {
+        this.barrier = barrier;
         this.board = new int[BOARD_SIZE];
         this.rand = new Random();
         this.score = 0;
@@ -47,21 +48,23 @@ public class Board implements KeyListener {
         this.currentTick = 0;
     }
 
-    private synchronized void startGame() {
+    private void startGame() {
         if (!gameStarted) {
             gameStarted = true;
             board[CAR_POSITION] = 2;
-            gameThread = GameThread.getInstance(this, eventDispatcher, 1000);
-            backgroundThread = new BackgroundThread(new GamePanel(this, lock), this);
+            gameThread = GameThread.getInstance(this, eventDispatcher, 1000, barrier);
+            gamePanel = new GamePanel(this, lock); // Modify this line
+            backgroundThread = new BackgroundThread(gamePanel, this, barrier);
             counterThread = new CounterThread(new Counter(), this);
 
             gameThread.start();
+            gamePanel.startBackground(); // Add this line
             backgroundThread.start();
             counterThread.start();
         }
     }
 
-    private synchronized void updateBoard() {
+    private void updateBoard() {
         lock.lock();
         try {
             // Store the car position
@@ -110,7 +113,7 @@ public class Board implements KeyListener {
         }
     }
 
-    private synchronized int generateObstacle() {
+    private int generateObstacle() {
         int[] lanes = {1, 2, 4};
         int newObstacle;
         do {
@@ -150,7 +153,7 @@ public class Board implements KeyListener {
     @Override
     public void keyTyped(KeyEvent e) {}
 
-    public synchronized void tick() {
+    public void tick() {
         lock.lock();
         try {
             currentTick++;
