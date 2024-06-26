@@ -61,27 +61,27 @@ public class GamePanel extends JPanel {
         this.obstaclePositions = new HashMap<>();
 
         // Add positions for value 4 (left lane)
-        this.obstaclePositions.put(new CompositeKey(4, 6), new int[]{531, 15});
-        this.obstaclePositions.put(new CompositeKey(4, 5), new int[]{497, 45});
-        this.obstaclePositions.put(new CompositeKey(4, 4), new int[]{415, 103});
-        this.obstaclePositions.put(new CompositeKey(4, 3), new int[]{355, 143});
-        this.obstaclePositions.put(new CompositeKey(4, 2), new int[]{265, 213});
-        this.obstaclePositions.put(new CompositeKey(4, 1), new int[]{235, 252});
+        this.obstaclePositions.put(new CompositeKey(4, 6), new int[]{521, 15});
+        this.obstaclePositions.put(new CompositeKey(4, 5), new int[]{477, 45});
+        this.obstaclePositions.put(new CompositeKey(4, 4), new int[]{380, 103});
+        this.obstaclePositions.put(new CompositeKey(4, 3), new int[]{325, 143});
+        this.obstaclePositions.put(new CompositeKey(4, 2), new int[]{225, 213});
+        this.obstaclePositions.put(new CompositeKey(4, 1), new int[]{170, 252});
 
         // Add positions for value 2 (middle lane)
-        this.obstaclePositions.put(new CompositeKey(2, 6), new int[]{553, 15});
-        this.obstaclePositions.put(new CompositeKey(2, 5), new int[]{530, 45});
-        this.obstaclePositions.put(new CompositeKey(2, 4), new int[]{470, 103});
-        this.obstaclePositions.put(new CompositeKey(2, 3), new int[]{425, 143});
-        this.obstaclePositions.put(new CompositeKey(2, 2), new int[]{360, 213});
-        this.obstaclePositions.put(new CompositeKey(2, 1), new int[]{330, 252});
+        this.obstaclePositions.put(new CompositeKey(2, 6), new int[]{543, 15});
+        this.obstaclePositions.put(new CompositeKey(2, 5), new int[]{520, 45});
+        this.obstaclePositions.put(new CompositeKey(2, 4), new int[]{450, 103});
+        this.obstaclePositions.put(new CompositeKey(2, 3), new int[]{405, 143});
+        this.obstaclePositions.put(new CompositeKey(2, 2), new int[]{340, 213});
+        this.obstaclePositions.put(new CompositeKey(2, 1), new int[]{300, 252});
 
         // Add positions for value 1 (right lane)
-        this.obstaclePositions.put(new CompositeKey(1, 6), new int[]{565, 15});
-        this.obstaclePositions.put(new CompositeKey(1, 5), new int[]{533, 45});
+        this.obstaclePositions.put(new CompositeKey(1, 6), new int[]{585, 15});
+        this.obstaclePositions.put(new CompositeKey(1, 5), new int[]{563, 45});
         this.obstaclePositions.put(new CompositeKey(1, 4), new int[]{505, 103});
         this.obstaclePositions.put(new CompositeKey(1, 3), new int[]{485, 143});
-        this.obstaclePositions.put(new CompositeKey(1, 2), new int[]{455, 213});
+        this.obstaclePositions.put(new CompositeKey(1, 2), new int[]{440, 213});
         this.obstaclePositions.put(new CompositeKey(1, 1), new int[]{425, 252});
 
         // Initialize the car positions
