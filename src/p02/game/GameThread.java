@@ -1,9 +1,9 @@
-// Klasa GameThread
 package p02.game;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
+// klasa GameThread odpowiada za wątek gry
 public class GameThread extends Thread {
     private final Board board;
     private final EventDispatcher eventDispatcher;
@@ -33,13 +33,13 @@ public class GameThread extends Thread {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(1000);  // Update every second
+                Thread.sleep(1000);
                 board.tick();
-                eventDispatcher.dispatchEvent(new TickEvent(currentTick)); // Dispatch TickEvent
+                eventDispatcher.dispatchEvent(new TickEvent(currentTick));
                 if (board.getScore() >= 999 || board.hasCollisionOccurred()) {
                     stopGame();
                 }
-                barrier.await();  // Wait for the other threads to reach this point
+                barrier.await();
             } catch (InterruptedException | BrokenBarrierException e) {
                 Thread.currentThread().interrupt();
             }

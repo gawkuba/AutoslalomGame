@@ -7,11 +7,11 @@ import p02.game.GameEventListener;
 import p02.game.PlusOneEvent;
 import p02.game.ResetEvent;
 
+// klasa seven segment digit reprezentuje pojedynczą cyfrę w wyświetlaczu i stanowi bazę dla wyświetlacza
 public class SevenSegmentDigit extends JPanel implements GameEventListener {
     private static final int DIGIT_WIDTH = 20;
     private static final int DIGIT_HEIGHT = 40;
     private static final int DIGIT_PADDING = 5;
-
 
     private int value;
     private SevenSegmentDigit nextDigit;

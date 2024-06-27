@@ -3,6 +3,7 @@ package p02.game;
 import java.util.ArrayList;
 import java.util.List;
 
+// klasa odpowiedzialna za dystrybucję zdarzeń w grze
 public class EventDispatcher {
     private static EventDispatcher instance;
     private final List<GameEventListener> listeners;

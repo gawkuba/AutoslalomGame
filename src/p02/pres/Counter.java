@@ -5,6 +5,7 @@ import p02.game.*;
 import javax.swing.*;
 import java.awt.*;
 
+// klasa reprezentująca licznik w grze (wyświetlany w postaci trzech cyfr siedmiosegmentowych)
 public class Counter extends JPanel implements GameEventListener {
     private static Counter instance;
     private final SevenSegmentDigit hundreds;

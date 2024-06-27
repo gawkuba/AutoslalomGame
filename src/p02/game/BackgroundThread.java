@@ -5,6 +5,7 @@ import p02.pres.GamePanel;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
+// klasa BackgroundThread odpowiada za wątek tła
 public class BackgroundThread extends Thread {
     private final GamePanel gamePanel;
     private final Board board;
@@ -22,13 +23,13 @@ public class BackgroundThread extends Thread {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(1000);  // Update every second
+                Thread.sleep(1000);
                 System.out.println("BackgroundThread woke up at " + System.currentTimeMillis());
                 gamePanel.updateBackground();
                 if (board.getScore() >= 999 || board.hasCollisionOccurred()) {
                     stopBackground();
                 }
-                barrier.await();  // Wait for the other threads to reach this point
+                barrier.await();
             } catch (InterruptedException | BrokenBarrierException e) {
                 Thread.currentThread().interrupt();
             }

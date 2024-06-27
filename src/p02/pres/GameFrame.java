@@ -5,9 +5,8 @@ import p02.game.*;
 import javax.swing.*;
 import java.util.concurrent.CyclicBarrier;
 
+// klasa reprezentująca okno gry oraz uruchamiająca program
 public class GameFrame extends JFrame {
-
-
 
     public GameFrame() {
         CyclicBarrier barrier = new CyclicBarrier(2);
@@ -27,6 +26,7 @@ public class GameFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GameFrame::new);
+        GameFrame gameFrame = new GameFrame();
+
     }
 }

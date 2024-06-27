@@ -1,5 +1,6 @@
 package p02.game;
 
+// zdarzenie odpowiadające za upływ czasu w grze
 public class TickEvent extends GameEvent {
     private final int tickCount;
 
@@ -7,7 +8,4 @@ public class TickEvent extends GameEvent {
         this.tickCount = tickCount;
     }
 
-    public int getTickCount() {
-        return tickCount;
-    }
 }

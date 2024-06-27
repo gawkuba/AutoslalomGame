@@ -2,6 +2,7 @@ package p02.game;
 
 import p02.pres.Counter;
 
+// wątek odpowiedzialny za zliczanie czasu
 public class CounterThread extends Thread {
     private final Counter counter;
     private final Board board;
@@ -17,7 +18,7 @@ public class CounterThread extends Thread {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(1000);  // Aktualizuj co sekundę
+                Thread.sleep(1000);
                 counter.increment();
                 if (board.getScore() >= 999 || board.hasCollisionOccurred()) {
                     stopCounter();

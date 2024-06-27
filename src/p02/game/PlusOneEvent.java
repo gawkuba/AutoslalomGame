@@ -1,5 +1,6 @@
 package p02.game;
 
+// klasa odpowiadająca za event dodawania liczby
 public class PlusOneEvent extends GameEvent {
     private final int digit;
 

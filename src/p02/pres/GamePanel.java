@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
+// klasa game panel odpowiadajaca za grafike gry
 public class GamePanel extends JPanel {
     private static final int BOARD_SIZE = 7;
     private final Timer timer;
@@ -117,15 +118,11 @@ public class GamePanel extends JPanel {
     }
 
     public void updateBackground() {
-        lock.lock();
-        try {
             System.out.println("Updating background at " + System.currentTimeMillis());
             currentBackgroundIndex.set((currentBackgroundIndex.get() + 1) % backgroundImages.length);
             System.out.println("background index in updateBackground " + currentBackgroundIndex.get());
-        } finally {
-            lock.unlock();
-        }
-        SwingUtilities.invokeLater(this::repaint);
+
+
     }
 
     private void updateCarPosition() {
@@ -140,9 +137,17 @@ public class GamePanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         lock.lock();
+
         try {
-            super.paintComponent(g);
-            g.drawImage(backgroundImages[currentBackgroundIndex.get()], 0, 0, getWidth(), getHeight(), this);
+            if (board.hasCollisionOccurred()) {
+                currentBackgroundIndex.set(backgroundImages.length - 1);
+            } else {
+                currentBackgroundIndex.set((currentBackgroundIndex.get() + 1) % backgroundImages.length);
+            }
+
+            int index = currentBackgroundIndex.get();
+            g.drawImage(backgroundImages[index], 0, 0, getWidth(), getHeight(), this);
+
             int carPosition = board.getCarPosition();
             if (carPositions != null && carPositions.containsKey(carPosition)) {
                 g.drawImage(carImage, carPositions.get(carPosition)[0], carPositions.get(carPosition)[1], null);
@@ -155,11 +160,11 @@ public class GamePanel extends JPanel {
                     int[] obstaclePosition = obstaclePositions.get(key);
                     Image obstacleImage;
                     if (i == 6 || i == 5) {
-                        obstacleImage = obstacleImages[2];  // Small obstacle
+                        obstacleImage = obstacleImages[2];
                     } else if (i == 4 || i == 3) {
-                        obstacleImage = obstacleImages[1];  // Medium obstacle
+                        obstacleImage = obstacleImages[1];
                     } else {
-                        obstacleImage = obstacleImages[0];  // Large obstacle
+                        obstacleImage = obstacleImages[0];
                     }
                     g.drawImage(obstacleImage, obstaclePosition[0], obstaclePosition[1], null);
                 }
@@ -168,6 +173,7 @@ public class GamePanel extends JPanel {
         } finally {
             lock.unlock();
         }
+
     }
 
 
