@@ -14,32 +14,32 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
-// TODO: change slightly hashmap positions for obstacles
-
 public class GamePanel extends JPanel {
     private static final int BOARD_SIZE = 7;
     private final Timer timer;
     private final Counter counter;
     private final Image[] backgroundImages;
-    private AtomicInteger currentBackgroundIndex;
-    private boolean gameStarted;
+    private final AtomicInteger currentBackgroundIndex;
+    private final boolean gameStarted;
     private final Board board;
     private final Image carImage;
     private final Image[] obstacleImages;
     private final Map<CompositeKey, int[]> obstaclePositions;
     private final Lock lock;
     private final Map<Integer, int[]> carPositions;
-    private Timer repaintTimer;
-
+    private final Timer repaintTimer;
 
     public GamePanel(Board board, Lock lock) {
         this.board = board;
-        this.counter = Counter.getInstance();
+        SevenSegmentDigit hundreds = new SevenSegmentDigit();
+        SevenSegmentDigit tens = new SevenSegmentDigit();
+        SevenSegmentDigit ones = new SevenSegmentDigit();
+        this.counter = Counter.getInstance(hundreds, tens, ones);
         this.gameStarted = false;
         this.lock = lock;
+
         currentBackgroundIndex = new AtomicInteger(0);
 
-        // Initialize the background images
         this.backgroundImages = new Image[]{
                 loadImage("../pres/assets/tracks/track1.jpg"),
                 loadImage("../pres/assets/tracks/track2.jpg"),
@@ -47,20 +47,16 @@ public class GamePanel extends JPanel {
                 loadImage("../pres/assets/tracks/track4.jpg"),
         };
 
-        // Initialize the car image
         this.carImage = loadImage("../pres/assets/car/car.png");
 
-        // Initialize the obstacle images
         this.obstacleImages = new Image[]{
                 loadImage("../pres/assets/obstacles/obstacleLarge.png"),
                 loadImage("../pres/assets/obstacles/obstacleMedium.png"),
                 loadImage("../pres/assets/obstacles/obstacleSmall.png"),
         };
 
-        // Initialize the obstacle positions
         this.obstaclePositions = new HashMap<>();
 
-        // Add positions for value 4 (left lane)
         this.obstaclePositions.put(new CompositeKey(4, 6), new int[]{521, 15});
         this.obstaclePositions.put(new CompositeKey(4, 5), new int[]{477, 45});
         this.obstaclePositions.put(new CompositeKey(4, 4), new int[]{380, 103});
@@ -68,7 +64,6 @@ public class GamePanel extends JPanel {
         this.obstaclePositions.put(new CompositeKey(4, 2), new int[]{225, 213});
         this.obstaclePositions.put(new CompositeKey(4, 1), new int[]{170, 252});
 
-        // Add positions for value 2 (middle lane)
         this.obstaclePositions.put(new CompositeKey(2, 6), new int[]{543, 15});
         this.obstaclePositions.put(new CompositeKey(2, 5), new int[]{520, 45});
         this.obstaclePositions.put(new CompositeKey(2, 4), new int[]{450, 103});
@@ -76,7 +71,6 @@ public class GamePanel extends JPanel {
         this.obstaclePositions.put(new CompositeKey(2, 2), new int[]{340, 213});
         this.obstaclePositions.put(new CompositeKey(2, 1), new int[]{300, 252});
 
-        // Add positions for value 1 (right lane)
         this.obstaclePositions.put(new CompositeKey(1, 6), new int[]{585, 15});
         this.obstaclePositions.put(new CompositeKey(1, 5), new int[]{563, 45});
         this.obstaclePositions.put(new CompositeKey(1, 4), new int[]{505, 103});
@@ -84,7 +78,6 @@ public class GamePanel extends JPanel {
         this.obstaclePositions.put(new CompositeKey(1, 2), new int[]{440, 213});
         this.obstaclePositions.put(new CompositeKey(1, 1), new int[]{425, 252});
 
-        // Initialize the car positions
         this.carPositions = new HashMap<>();
         carPositions.put(1, new int[]{325, 285});
         carPositions.put(2, new int[]{200, 285});
@@ -137,7 +130,6 @@ public class GamePanel extends JPanel {
 
     private void updateCarPosition() {
         int carPosition = board.getCarPosition();
-        // Update the car's position
         carPositions.put(carPosition, carPositions.get(carPosition));
     }
 
@@ -152,16 +144,14 @@ public class GamePanel extends JPanel {
             super.paintComponent(g);
             g.drawImage(backgroundImages[currentBackgroundIndex.get()], 0, 0, getWidth(), getHeight(), this);
             int carPosition = board.getCarPosition();
-            // Draw the car image at the corresponding position
             if (carPositions != null && carPositions.containsKey(carPosition)) {
                 g.drawImage(carImage, carPositions.get(carPosition)[0], carPositions.get(carPosition)[1], null);
             }
 
-            // Draw the obstacles
             int[] boardArray = board.getBoard();
             for (int i = 1; i < BOARD_SIZE; i++) {
                 CompositeKey key = new CompositeKey(boardArray[i], i);
-                if (obstaclePositions!= null && obstaclePositions.containsKey(key)) {
+                if (obstaclePositions != null && obstaclePositions.containsKey(key)) {
                     int[] obstaclePosition = obstaclePositions.get(key);
                     Image obstacleImage;
                     if (i == 6 || i == 5) {
@@ -174,14 +164,12 @@ public class GamePanel extends JPanel {
                     g.drawImage(obstacleImage, obstaclePosition[0], obstaclePosition[1], null);
                 }
             }
-
-            counter.setBounds(10, 10, 100, 50);
-            counter.draw(g);
-            System.out.println("Counter value in paintComponent: " + counter.getValue());
+            counter.paintComponent(g);
         } finally {
             lock.unlock();
         }
     }
+
 
     public Counter getCounter() {
         return counter;

@@ -13,40 +13,35 @@ public class Counter extends JPanel implements GameEventListener {
     private final SevenSegmentDigit hundreds;
     private final SevenSegmentDigit tens;
     private final SevenSegmentDigit ones;
+    private int counterValue = 0;
 
-    Counter() {
-        this.hundreds = new SevenSegmentDigit();
-        this.tens = new SevenSegmentDigit();
-        this.ones = new SevenSegmentDigit();
-        this.hundreds.setValue(0);
-        this.tens.setValue(0);
-        this.ones.setValue(0);
+    private Counter(SevenSegmentDigit hundreds, SevenSegmentDigit tens, SevenSegmentDigit ones) {
+        this.hundreds = hundreds;
+        this.tens = tens;
+        this.ones = ones;
 
         add(hundreds);
         add(tens);
         add(ones);
 
-        // Set the bounds of the SevenSegmentDigit instances
-        hundreds.setBounds(10, 10, 30, 50); // Adjust these values as needed
-        tens.setBounds(40, 10, 30, 50); // Adjust these values as needed
-        ones.setBounds(70, 10, 30, 50); // Adjust these values as needed
+        hundreds.setBounds(10, 10, 30, 50);
+        tens.setBounds(40, 10, 30, 50);
+        ones.setBounds(70, 10, 30, 50);
     }
 
-    public static Counter getInstance() {
+    public static Counter getInstance(SevenSegmentDigit hundreds, SevenSegmentDigit tens, SevenSegmentDigit ones) {
         if (instance == null) {
-            instance = new Counter();
+            instance = new Counter(hundreds, tens, ones);
         }
         return instance;
     }
 
     public void increment() {
-        ones.handleEvent(new PlusOneEvent(ones.getValue()));
-        if (ones.getValue() == 0) {
-            tens.handleEvent(new PlusOneEvent(tens.getValue()));
-            if (tens.getValue() == 0) {
-                hundreds.handleEvent(new PlusOneEvent(hundreds.getValue()));
-            }
-        }
+        counterValue++;
+        ones.setValue(counterValue % 10);
+        tens.setValue((counterValue / 10) % 10);
+        hundreds.setValue((counterValue / 100) % 10);
+
     }
 
     public void reset() {
@@ -55,17 +50,19 @@ public class Counter extends JPanel implements GameEventListener {
         ones.setValue(0);
     }
 
-    public void draw(Graphics g) {
-        int digitWidth = 30;  // Adjust this value as needed
-        int digitHeight = 50; // Adjust this value as needed
-        int padding = 10; // Adjust this value as needed
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        int digitWidth = 30;
+        int digitHeight = 50;
+        int padding = 10;
 
         hundreds.setBounds(padding, padding, digitWidth, digitHeight);
-        hundreds.draw(g);
-        tens.setBounds(padding + digitWidth, padding, digitWidth, digitHeight);
-        tens.draw(g);
-        ones.setBounds(padding + 2 * digitWidth, padding, digitWidth, digitHeight);
-        ones.draw(g);
+        hundreds.paintComponent(g.create(padding, padding, digitWidth, digitHeight));
+        tens.setBounds(padding + digitWidth + padding, padding, digitWidth, digitHeight);
+        tens.paintComponent(g.create(padding + digitWidth + padding, padding, digitWidth, digitHeight));
+        ones.setBounds(padding + 2 * (digitWidth + padding), padding, digitWidth, digitHeight);
+        ones.paintComponent(g.create(padding + 2 * (digitWidth + padding), padding, digitWidth, digitHeight));
     }
 
     @Override

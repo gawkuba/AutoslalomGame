@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import p02.game.GameEvent;
 import p02.game.GameEventListener;
-import p02.game.StartEvent;
 import p02.game.PlusOneEvent;
 import p02.game.ResetEvent;
 
@@ -19,10 +18,7 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
 
     public SevenSegmentDigit() {
         this.value = 0;
-    }
-
-    public void setNextDigit(SevenSegmentDigit nextDigit) {
-        this.nextDigit = nextDigit;
+        this.setOpaque(false);
     }
 
     public void setValue(int value) {
@@ -38,8 +34,6 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
-
-        System.out.println("Current value: " + value);
 
         switch (value) {
             case 0:
@@ -139,10 +133,8 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
 
     @Override
     public void handleEvent(GameEvent e) {
-        System.out.println("handleEvent method called in SevenSegmentDigit with event: " + e);
         if (e instanceof PlusOneEvent) {
             this.value = ((PlusOneEvent) e).getDigit();
-            System.out.println("Updated value: " + this.value);
             if (this.value == 10) {
                 this.value = 0;
                 if (nextDigit != null) {
@@ -153,9 +145,5 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
             this.value = 0;
         }
         repaint();
-    }
-
-    public void draw(Graphics g) {
-        paintComponent(g);
     }
 }

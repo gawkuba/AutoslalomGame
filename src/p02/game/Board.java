@@ -60,7 +60,7 @@ public class Board implements KeyListener {
             gamePanel = new GamePanel(this, lock); // Modify this line
             backgroundThread = new BackgroundThread(gamePanel, this, barrier);
 
-            counterThread = new CounterThread(Counter.getInstance(), this);
+            counterThread = new CounterThread(Counter.getInstance(hundreds, tens, ones), this);
 
             gameThread.start();
             gamePanel.startBackground(); // Add this line
