@@ -139,10 +139,15 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
 
     @Override
     public void handleEvent(GameEvent e) {
+        System.out.println("handleEvent method called in SevenSegmentDigit with event: " + e);
         if (e instanceof PlusOneEvent) {
-            this.value = (this.value + 1) % 10;
-            if (this.value == 0 && nextDigit != null) {
-                nextDigit.handleEvent(e);
+            this.value = ((PlusOneEvent) e).getDigit();
+            System.out.println("Updated value: " + this.value);
+            if (this.value == 10) {
+                this.value = 0;
+                if (nextDigit != null) {
+                    nextDigit.handleEvent(new PlusOneEvent(0));
+                }
             }
         } else if (e instanceof ResetEvent) {
             this.value = 0;

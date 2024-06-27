@@ -33,6 +33,9 @@ public class Board implements KeyListener {
     private final Lock lock = new ReentrantLock();
     private final CyclicBarrier barrier;
     private GamePanel gamePanel;
+    SevenSegmentDigit hundreds = new SevenSegmentDigit();
+    SevenSegmentDigit tens = new SevenSegmentDigit();
+    SevenSegmentDigit ones = new SevenSegmentDigit();
 
     public Board(CyclicBarrier barrier) {
         this.barrier = barrier;
@@ -46,6 +49,7 @@ public class Board implements KeyListener {
         this.eventDispatcher.addListener(sevenSegmentDigit);
         this.tickCountSinceLastObstacle = 0;
         this.currentTick = 0;
+
     }
 
     private void startGame() {
@@ -55,7 +59,8 @@ public class Board implements KeyListener {
             gameThread = GameThread.getInstance(this, eventDispatcher, 1000, barrier);
             gamePanel = new GamePanel(this, lock); // Modify this line
             backgroundThread = new BackgroundThread(gamePanel, this, barrier);
-            counterThread = new CounterThread(new Counter(), this);
+
+            counterThread = new CounterThread(Counter.getInstance(), this);
 
             gameThread.start();
             gamePanel.startBackground(); // Add this line

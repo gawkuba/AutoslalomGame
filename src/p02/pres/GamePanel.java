@@ -34,7 +34,7 @@ public class GamePanel extends JPanel {
 
     public GamePanel(Board board, Lock lock) {
         this.board = board;
-        this.counter = new Counter();
+        this.counter = Counter.getInstance();
         this.gameStarted = false;
         this.lock = lock;
         currentBackgroundIndex = new AtomicInteger(0);
@@ -150,9 +150,7 @@ public class GamePanel extends JPanel {
         lock.lock();
         try {
             super.paintComponent(g);
-            System.out.println("Drawing background image " + currentBackgroundIndex.get() + "...");
             g.drawImage(backgroundImages[currentBackgroundIndex.get()], 0, 0, getWidth(), getHeight(), this);
-            System.out.println("background index in paint component: " + currentBackgroundIndex);
             int carPosition = board.getCarPosition();
             // Draw the car image at the corresponding position
             if (carPositions != null && carPositions.containsKey(carPosition)) {
@@ -179,6 +177,7 @@ public class GamePanel extends JPanel {
 
             counter.setBounds(10, 10, 100, 50);
             counter.draw(g);
+            System.out.println("Counter value in paintComponent: " + counter.getValue());
         } finally {
             lock.unlock();
         }
