@@ -1,9 +1,6 @@
 package p02.pres;
 
-import p02.game.GameEvent;
-import p02.game.GameEventListener;
-import p02.game.PlusOneEvent;
-import p02.game.ResetEvent;
+import p02.game.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,10 +68,9 @@ public class Counter extends JPanel implements GameEventListener {
             increment();
         } else if (e instanceof ResetEvent) {
             reset();
+        } else if (e instanceof TickEvent) {
+
         }
     }
 
-    public String getValue() {
-        return hundreds.getValue() + "" + tens.getValue() + ones.getValue();
-    }
 }

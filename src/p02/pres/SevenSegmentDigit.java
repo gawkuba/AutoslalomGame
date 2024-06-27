@@ -26,10 +26,6 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
         repaint();
     }
 
-    public int getValue() {
-        return this.value;
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

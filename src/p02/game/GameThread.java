@@ -11,6 +11,7 @@ public class GameThread extends Thread {
     private static GameThread instance;
     private final int someIntValue;
     private final CyclicBarrier barrier;
+    private int currentTick = 0;
 
     public GameThread(Board board, EventDispatcher eventDispatcher, int someIntValue, CyclicBarrier barrier) {
         this.board = board;
@@ -18,6 +19,7 @@ public class GameThread extends Thread {
         this.running = true;
         this.someIntValue = someIntValue;
         this.barrier = barrier;
+        this.currentTick = 0;
     }
 
     public static GameThread getInstance(Board board, EventDispatcher eventDispatcher, int someIntValue, CyclicBarrier barrier) {
@@ -33,6 +35,7 @@ public class GameThread extends Thread {
             try {
                 Thread.sleep(1000);  // Update every second
                 board.tick();
+                eventDispatcher.dispatchEvent(new TickEvent(currentTick)); // Dispatch TickEvent
                 if (board.getScore() >= 999 || board.hasCollisionOccurred()) {
                     stopGame();
                 }
