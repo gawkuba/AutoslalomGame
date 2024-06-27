@@ -17,16 +17,14 @@ public class Counter extends JPanel implements GameEventListener {
         this.hundreds = new SevenSegmentDigit();
         this.tens = new SevenSegmentDigit();
         this.ones = new SevenSegmentDigit();
+
+        // Link the digits
+        ones.setNextDigit(tens);
+        tens.setNextDigit(hundreds);
     }
 
     public void increment() {
-        ones.setValue((ones.getValue() + 1) % 10);
-        if (ones.getValue() == 0) {
-            tens.setValue((tens.getValue() + 1) % 10);
-            if (tens.getValue() == 0) {
-                hundreds.setValue((hundreds.getValue() + 1) % 10);
-            }
-        }
+        ones.handleEvent(new PlusOneEvent(ones.getValue()));
     }
 
     public void reset() {
@@ -40,14 +38,13 @@ public class Counter extends JPanel implements GameEventListener {
         tens.draw(g);
         ones.draw(g);
     }
+
     @Override
     public void handleEvent(GameEvent e) {
         if (e instanceof PlusOneEvent) {
-            ones.handleEvent(e);
+            increment();
         } else if (e instanceof ResetEvent) {
-            hundreds.handleEvent(e);
-            tens.handleEvent(e);
-            ones.handleEvent(e);
+            reset();
         }
     }
 }

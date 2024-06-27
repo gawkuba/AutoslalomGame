@@ -13,6 +13,7 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
     private static final int DIGIT_HEIGHT = 40;
     private static final int DIGIT_PADDING = 5;
 
+
     private int value;
     private SevenSegmentDigit nextDigit;
 
@@ -37,6 +38,8 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
+
+        System.out.println("Current value: " + value);
 
         switch (value) {
             case 0:
@@ -136,9 +139,7 @@ public class SevenSegmentDigit extends JPanel implements GameEventListener {
 
     @Override
     public void handleEvent(GameEvent e) {
-        if (e instanceof StartEvent) {
-            this.value = 0;
-        } else if (e instanceof PlusOneEvent) {
+        if (e instanceof PlusOneEvent) {
             this.value = (this.value + 1) % 10;
             if (this.value == 0 && nextDigit != null) {
                 nextDigit.handleEvent(e);
